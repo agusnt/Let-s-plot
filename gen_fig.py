@@ -467,7 +467,9 @@ def fig_bar(ax, jgraph):
         if 'annotate' in jgraph and k in jgraph['annotate']:
             decimals = jgraph['annotate'][k]['round']
             maxxj = math.floor(maxj)
-            if maxxj > jgraph['axis']['y']['max']:
+            if maxxj > jgraph['axis']['y']['max'] or \
+                    ('always' in jgraph['annotate'][k] and \
+                     jgraph['annotate'][k]['always']):
                 # Annotate for this bar if the value is bigger than x
                 dic_annotate = jgraph['annotate'][k]
 
@@ -482,6 +484,10 @@ def fig_bar(ax, jgraph):
                 # Position x and y, and value to write 
                 x = i + loc[k]
                 y = jgraph['axis']['y']['max']
+
+                # If we always write the annotations we have to change the y
+                if maxxj < jgraph['axis']['y']['max']: y = maxj
+
                 if (r != 0): v = "{}".format(round(maxj, r))
                 else: v = "{}".format(int(maxj))
 
