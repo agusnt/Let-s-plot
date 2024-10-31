@@ -1,0 +1,5 @@
+matplotlib
+pprint
+seaborn
+numpy
+json

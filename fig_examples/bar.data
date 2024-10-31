@@ -1,0 +1,92 @@
+[
+    {
+        "x": 0,
+        "y": 0.2,
+        "value": "E",
+        "color": "#000000",
+        "edge_color": "#ffffff",
+        "marker": "",
+        "legend": true
+    },
+    {
+        "x": 0,
+        "y": 0.4,
+        "value": "F",
+        "color": "#E8F086",
+        "edge_color": "#000000",
+        "marker": "",
+        "legend": true
+    },
+    {
+        "x": 0,
+        "y": 0.6,
+        "value": "G",
+        "color": "#6FDE6E",
+        "edge_color": "#000000",
+        "marker": "",
+        "legend": true
+    },
+    {
+        "x": 1,
+        "y": 3.0,
+        "value": "E",
+        "color": "#000000",
+        "edge_color": "#ffffff",
+        "marker": "",
+        "legend": true
+    },
+    {
+        "x": 1,
+        "y": 2.4,
+        "value": "F",
+        "color": "#E8F086",
+        "edge_color": "#000000",
+        "marker": "",
+        "legend": true
+    },
+    {
+        "x": 1,
+        "y": 1.8,
+        "value": "G",
+        "color": "#6FDE6E",
+        "edge_color": "#000000",
+        "marker": "",
+        "legend": true
+    },
+    {
+        "x": 2,
+        "y": 2.0,
+        "value": "E",
+        "color": "#000000",
+        "edge_color": "#ffffff",
+        "marker": "",
+        "legend": true
+    },
+    {
+        "x": 2,
+        "y": 8.4,
+        "value": "F",
+        "color": "#E8F086",
+        "edge_color": "#000000",
+        "marker": "",
+        "legend": true
+    },
+    {
+        "x": 2,
+        "y": 4.8,
+        "value": "G",
+        "color": "#6FDE6E",
+        "edge_color": "#000000",
+        "marker": "",
+        "legend": true
+    },
+    {
+        "x": 2,
+        "y": 1.8,
+        "value": "G",
+        "color": "#6FDE6E",
+        "edge_color": "#000000",
+        "marker": "///",
+        "legend": true
+    }
+]

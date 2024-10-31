@@ -1,0 +1,114 @@
+{
+    "rows": 1,
+    "columns": 1,
+    "figsize": "10,5",
+    "graphs": [ 
+        {
+            "dx": 0,
+            "dy": 0,
+            "type": "bar",
+            "data": "bar.data",
+            "title": "Bar graph",
+            "args": { "zorder": 3 },
+            "axis": {
+                "x": {
+                    "label": "X-Axis",
+                    "ticks": [0, 1, 2],
+                    "ticks_label": ["A", "B", "C"],
+                    "max": 2.5,
+                    "min": -0.5
+                },
+                "y": {
+                    "label": "Y-Axis",
+                    "ticks": [0.0, 1.0, 2.0, 3.0],
+                    "minor_ticks": [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0],
+                    "max": 3.0,
+                    "min": 0.0,
+                    "grid": true,
+                    "subgrid": true
+                }
+            },
+            "hline": [
+                {
+                    "xmax": 3.5,
+                    "xmin": -0.5,
+                    "y": 2.25,
+                    "color": "#EA6962"
+                },
+                {
+                    "xmax": 3.5,
+                    "xmin": -0.5,
+                    "y": 1.25,
+                    "color": "#A9B665"
+                }
+            ],
+            "legend": [
+                {
+                    "elems": [
+                        "H"
+                    ],
+                    "args": {
+                        "edgecolor": "black",
+                        "fancybox": true,
+                        "bbox_to_anchor": [0.6, 1.2],
+                        "ncol": 1
+                    },
+                    "extra": {
+                        "H": {
+                            "facecolor": "white",
+                            "edgecolor": "black",
+                            "hatch": "///"
+                        }
+                    }
+                },
+                {
+                    "elems": [
+                        "E", "F", "G"
+                    ],
+                    "args": {
+                        "edgecolor": "black",
+                        "fancybox": true,
+                        "bbox_to_anchor": [0.8, 1.2],
+                        "ncol": 2
+                    }
+                }
+            ],
+            "annotate" : {
+                "general": [
+                    {
+                        "str": "This is an annotation",
+                        "x": 1.5,
+                        "y": 2.0
+                    }
+                ],
+                "F" : {
+                    "round": 1,
+                    "x": 0,
+                    "y": 0.2,
+                    "args": {
+                        "arrowprops": {
+                            "facecolor": "black",
+                            "shrink": 0.5
+                        },
+                        "zorder": 99,
+                        "ha": "center"
+                    }
+                },
+                "G" : {
+                    "round": 1,
+                    "x": 0,
+                    "y": 0.2,
+                    "args": {
+                        "arrowprops": {
+                            "facecolor": "black",
+                            "shrink": 0.5
+                        },
+                        "zorder": 99,
+                        "ha": "center"
+                    }
+                }
+            },
+            "order": ["E", "F", "G"]
+        }
+    ]
+}
