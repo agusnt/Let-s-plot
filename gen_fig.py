@@ -187,11 +187,11 @@ def set_axis(ax, axis, info):
         if axis == 'x': ax.set_xlim((info['min'], info['max']))
         elif axis == 'y': ax.set_ylim((info['min'], info['max']))
 
-    if 'grid' in info: # Grid 
+    if 'grid' in info and info['grid'] == True: # Grid 
         if axis == 'x': ax.grid(axis='x')
         elif axis == 'y': ax.grid(axis='y')
 
-    if 'subgrid' in info: # Sub Grid 
+    if 'subgrid' in info and inf['subgrid'] == True: # Sub Grid 
         if axis == 'x': ax.grid(axis='x', which='minor', linestyle='--')
         elif axis == 'y': ax.grid(axis='y', which='minor', linestyle='--')
 
