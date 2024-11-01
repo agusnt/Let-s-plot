@@ -191,7 +191,7 @@ def set_axis(ax, axis, info):
         if axis == 'x': ax.grid(axis='x')
         elif axis == 'y': ax.grid(axis='y')
 
-    if 'subgrid' in info and inf['subgrid'] == True: # Sub Grid 
+    if 'subgrid' in info and info['subgrid'] == True: # Sub Grid 
         if axis == 'x': ax.grid(axis='x', which='minor', linestyle='--')
         elif axis == 'y': ax.grid(axis='y', which='minor', linestyle='--')
 
