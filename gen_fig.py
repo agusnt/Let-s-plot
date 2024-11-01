@@ -243,8 +243,10 @@ def graph_format(ax, info):
                 if ii not in l and ii != 'mt_lg_placeholder': 
                     # Show an error because there is something miss in legend
                     if 'extra' not in info['legend'][idx]:
-                        eprint("I can't not found {} in the data, but I can't\
-                            either found an 'extra' field with its information")
+                        eprint("{} {} {} {}".format(
+                            "I can't not found", ii, "in the data, but I can't",
+                            "either found an 'extra' field with its information"
+                        ))
                         continue
 
                     legends_elements.append(
