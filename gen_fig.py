@@ -472,7 +472,7 @@ def fig_bar(ax, jgraph):
 
         if 'annotate' in jgraph and k in jgraph['annotate']:
             decimals = jgraph['annotate'][k]['round']
-            maxxj = math.floor(maxj)
+            maxxj = math.floor(maxj*10**decimals) / (10**decimals)
             if maxxj > jgraph['axis']['y']['max'] or \
                     ('always' in jgraph['annotate'][k] and \
                      jgraph['annotate'][k]['always']):
