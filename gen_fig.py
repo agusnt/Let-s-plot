@@ -21,6 +21,7 @@ import matplotlib.cm as cm
 import seaborn as sns
 import numpy as np
 import json, sys
+import argparse
 
 ###############################################################################
 # Auxiliary functions
@@ -499,12 +500,9 @@ def fig_bar(ax, jgraph):
 
                 annotate(ax, v, x, y, xd, yd, arg)
     
-if __name__ == '__main__':
     
-    # Test that we have enough parameters
-    assert len(sys.argv) > 2, 'Miss json file or output file'
-
-    jgraph = read_json(sys.argv[1]) # Read json config file
+def main(chart : str, output : str):
+    jgraph = read_json(chart) # Read json config file
 
     # Subplot size
     rows = 1 if 'rows' not in jgraph else jgraph['rows']
@@ -541,4 +539,15 @@ if __name__ == '__main__':
 
     # Save fig as pdf
     # plt.tight_layout()
-    fig.savefig(sys.argv[2], bbox_inches='tight')
+    fig.savefig(output, bbox_inches='tight')
+    
+    
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Generate figure from json file')
+    parser.add_argument('chart', type=str, help='Json file with the chart')
+    parser.add_argument('output', type=str, help='Output file')
+    args = parser.parse_args()
+
+    main(args.chart, args.output)
+
+    
