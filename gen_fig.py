@@ -283,7 +283,7 @@ def fig_heatmap(ax, jgraph):
     '''
     # Get the data
     x, y, v, _, _, _, _, _= data_to_array(jgraph['data'])
-    matrix = array_to_np(x, y, v, (jgraph['size_x'], jgraph['size_y']))
+    matrix = array_to_np(y, x, v, (jgraph['size_y'], jgraph['size_x']))
     # Remove 0
     matrix[matrix == 0] = np.nan
 
