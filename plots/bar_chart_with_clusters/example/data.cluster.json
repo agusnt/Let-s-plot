@@ -1,0 +1,37 @@
+{
+    "clusters": [
+        {
+            "name": "Benchmark A",
+            "data": [
+                0.5,
+                0.75,
+                0.545,
+                0.25
+            ]
+        },
+        {
+            "name": "Benchmark B",
+            "data": [
+                0.75,
+                0.5,
+                0.25,
+                0.95
+            ]
+        },
+        {
+            "name": "Benchmark C",
+            "data": [
+                0.7,
+                0.5,
+                0.2,
+                0.1
+            ]
+        }
+    ], 
+    "series" : [
+        "Intel Processor",
+        "AMD Processor",
+        "NVIDIA GPU",
+        "AMD GPU"
+    ]
+}

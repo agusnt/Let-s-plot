@@ -1,0 +1,46 @@
+{
+    "rows": 1,
+    "columns": 1,
+    "figsize": "10,5",
+    "graphs": [ 
+        {
+            "dx": 0,
+            "dy": 0,
+            "type": "bar",
+            "data": "TO BE FILLED",
+            "title": "",
+            "args": { "zorder": 3 },
+            "axis": {
+                "x": {
+                    "label": "",
+                    "ticks": "TO BE FILLED WITH A LIST OF NUMBER FROM 0 to N-1 MODELS",
+                    "ticks_label": "TO BE FILLED WITH CLUSTER NAMES",
+                    "max": "TO FILL WITH N-1 (nCLUSTERS) + 0.5",
+                    "min": -0.5
+                },
+                "y": {
+                    "label": "Speedup",
+                    "ticks": [0.0, 1.0, 2.0],
+                    "minor_ticks": [0.0, 0.5, 1.0, 1.5, 2.0],
+                    "max": 3.0,
+                    "min": 0.0,
+                    "grid": true,
+                    "subgrid": true
+                }
+            },
+            "legend": [
+                {
+                    "elems": ["TO BE FILLED WITH SERIES NAMES"],
+                    "args": {
+                        "edgecolor": "white",
+                        "fancybox": true,
+                        "loc": "upper left",
+                        "bbox_to_anchor": [0.0, 1.0],
+                        "ncol": 2
+                    }
+                }
+            ],
+            "order": ["TO BE FILLED WITH SERIES NAMES"]
+        }
+    ]
+}
