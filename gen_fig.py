@@ -105,18 +105,19 @@ def array_to_np(x, y, v, s):
     for i, j, k in zip(x, y, v): matrix[i][j] = k
     return matrix
 
-def set_annotate(ax, args):
+def set_annotate(ax, args, fig):
     '''
     Set values to print an annotation in the graph
 
     Parameters:
         ax : axis graph
         args : arguments arguments
+        fig : figure object
     '''
     arg = args['args'] if 'args' in args else {}
-    annotate(ax, args['str'], args['x'], args['y'], 0, 0, arg)
+    annotate(ax, args['str'], args['x'], args['y'], 0, 0, arg, fig)
 
-def annotate(ax, v, x, y, xd, yd, arg):
+def annotate(ax, v, x, y, xd, yd, arg, fig):
     '''
     Print an annotation in the graph
 
@@ -128,8 +129,47 @@ def annotate(ax, v, x, y, xd, yd, arg):
         xd : extra end x position
         yd : extra end y position
         arg : extra arguments
+        fig : figure object
     '''
-    ax.annotate(v, [x, y], [x+xd, y+yd], annotation_clip=False, **arg)
+    # Simulate a C/C++ static var for saving the previous annotation
+    if not hasattr(annotate, 'prev'): annotate.prev = []
+
+    def intersects(first, second):
+        # Check collistion of the BBox
+
+        a = first[0].get_window_extent().transformed(ax.transData.inverted())
+        b = second[0].get_window_extent().transformed(ax.transData.inverted())
+
+        for i, pad in [(a, first[1]), (b, second[1])]:
+            i.x0 -= pad
+            i.y0 += pad
+            i.x1 += pad
+            i.y1 -= pad
+        if (b.x0 >= a.x0 and b.x0 <= a.x1 and b.y1 <= a.y0 and b.y1 >= a.y1) or\
+            (b.x1 >= a.x0 and b.x1 <= a.x1 and b.y0 >= a.y1 and b.y0 <= a.y0):
+            return True
+        return False
+
+    is_right = False
+    while not is_right:
+        is_right = True # Should work
+
+        # Print the annotation
+        ann = ax.annotate(v, [x, y], [x+xd, y+yd], annotation_clip=False, **arg)
+
+        # Get the position of the axis
+        fig.draw_without_rendering() # Draw it to force it to get the right one
+
+        # Get the extra path of the BBox 
+        pad = ann.get_bbox_patch().get_boxstyle().pad
+
+        for i in annotate.prev:
+            if intersects((ann, pad), i): 
+                is_right = False
+                ann.remove()
+                break
+        yd *= 2 # TODO: Try also on Y-axis and not only on Y-axis
+    annotate.prev.append((ann, pad))
 
 ###############################################################################
 # Graph Plot functions
@@ -370,7 +410,7 @@ def fig_scatter(ax, jgraph):
         if q: ax.scatter(i, j, c=k, marker=o, label=n, **args) # With label
         else: ax.scatter(i, j, c=k, marker=o, **args) # Without label
 
-def fig_bar(ax, jgraph):
+def fig_bar(ax, jgraph, fig):
     '''
     Do a bar graph
 
@@ -498,7 +538,7 @@ def fig_bar(ax, jgraph):
                 if (r != 0): v = "{}".format(round(maxj, r))
                 else: v = "{}".format(int(maxj))
 
-                annotate(ax, v, x, y, xd, yd, arg)
+                annotate(ax, v, x, y, xd, yd, arg, fig)
     
     
 def main(chart : str, output : str):
@@ -527,11 +567,11 @@ def main(chart : str, output : str):
 
         if i['type'] == 'heatmap': fig_heatmap(ax, i)
         elif i['type'] == 'scatter': fig_scatter(ax, i)
-        elif i['type'] == 'bar': fig_bar(ax, i)
+        elif i['type'] == 'bar': fig_bar(ax, i, fig)
         elif i['type'] == 'plot': fig_plot(ax, i)
 
         if 'annotate' in i and 'general' in i['annotate']:
-            for ii in i['annotate']['general']: set_annotate(ax, ii)
+            for ii in i['annotate']['general']: set_annotate(ax, ii, fig)
 
         graph_format(ax, i)
 
