@@ -15,7 +15,6 @@ import matplotlib
 
 import matplotlib.patches as mpatches
 from matplotlib.ticker import ScalarFormatter
-from pprint import pprint as ppt
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import seaborn as sns
@@ -151,25 +150,40 @@ def annotate(ax, v, x, y, xd, yd, arg, fig):
         return False
 
     is_right = False
+    # How to move the annotation (x, y)
+    clock_position_dx = 0
+    clock_position = [(0, 1), (1, 0), (0, -1), (-1, 0)]
     while not is_right:
         is_right = True # Should work
 
         # Print the annotation
-        ann = ax.annotate(v, [x, y], [x+xd, y+yd], annotation_clip=False, **arg)
+        if 'label' in arg: v_ = '{} {}'.format(arg['label'], v)
+        else: v_ = v
+
+        ann = ax.annotate(v_, [x, y], [x+xd, y+yd], annotation_clip=False, **arg)
 
         # Get the position of the axis
         fig.draw_without_rendering() # Draw it to force it to get the right one
 
         # Get the extra path of the BBox 
-        pad = ann.get_bbox_patch().get_boxstyle().pad
+    #    pad = ann.get_bbox_patch().get_boxstyle().pad
 
-        for i in annotate.prev:
-            if intersects((ann, pad), i): 
-                is_right = False
-                ann.remove()
-                break
-        yd *= 2 # TODO: Try also on Y-axis and not only on Y-axis
-    annotate.prev.append((ann, pad))
+    #    for i in annotate.prev:
+    #        if intersects((ann, pad), i): 
+    #            is_right = False
+    #            ann.remove()
+    #            break
+    #    clock = clock_position[clock_position_dx]
+    #    if clock[0] != 0:
+    #        if xd < 0: xd *= -1
+    #        xd += 0.1
+    #        xd *= clock[0]
+    #    if clock[1] != 0:
+    #        if yd < 0: yd *= -1
+    #        yd += 0.1
+    #        yd *= clock[1]
+    #    clock_position_dx = (clock_position_dx + 1) % len(clock_position)
+    #annotate.prev.append((ann, pad))
 
 ###############################################################################
 # Graph Plot functions
@@ -177,6 +191,9 @@ def annotate(ax, v, x, y, xd, yd, arg, fig):
 def set_fig(info = {}, rows=1, columns=1, size=None):
     if size: return plt.subplots(nrows=rows, ncols=columns, figsize=size, **info)
     else: return plt.subplots(rows, columns, **args)
+
+def subplot_adjust(info):
+    plt.subplots_adjust(**info)
 
 def get_ax(dx, dy, axs):
     '''
@@ -202,11 +219,40 @@ def set_axis(ax, axis, info):
 
     Parameters:
         ax: axis 
-        axis : 'x' or 'y' 
+        axis : 'x', 'y' or 'common'
         info : format of the axis
     '''
     args_labels = info['args_labels'] if 'args_labels' in info else {}
     args_txt_label = info['args_txt_label'] if 'args_txt_label' in info else {}
+
+    # Set visibility of the axis, not axis needed
+    if 'visibility' in info and axis == 'common':
+        ax.spines[info['visibility']['spine']].set_visible(info['visibility']['value'])
+
+    # Set a fancy cut
+    if 'fancy_cut' in info and axis == 'common':
+        d = info['fancy_cut']['size']
+        s = info['fancy_cut']['sloppy']
+        if info['fancy_cut']['pos'] == 'left':
+            kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
+            ax.plot((1-d/s, 1+d/s), (-d, +d), **kwargs)
+            ax.plot((1-d/s, 1+d/s), (1-d, 1+d), **kwargs)
+        if info['fancy_cut']['pos'] == 'right':
+            kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
+            ax.plot((-d, +d), (1-d/s, 1+d/s), **kwargs)
+            ax.plot((-d, +d), (-d/s, +d/s), **kwargs)
+
+    if 'scale' in info:
+        if axis == 'x': ax.set_xscale(info['scale'])
+        elif axis == 'y': ax.set_yscale(info['scale'])
+
+    if 'format' in info and info['format'] == 'scalar':
+        if axis == 'x': ax.xaxis.set_major_formatter(ScalarFormatter())
+        elif axis == 'y': ax.yaxis.set_major_formatter(ScalarFormatter())
+
+    if 'params' in info:
+        if axis == 'x': ax.tick_params(axis='x', **info['params'])
+        elif axis == 'y': ax.tick_params(axis='y', **info['params'])
 
     if 'label' in info: # Label
         if axis == 'x': ax.set_xlabel(info['label'])
@@ -244,14 +290,6 @@ def set_axis(ax, axis, info):
         if axis == 'x': ax.tick_params(axis='x', **info['tick_params'])
         elif axis == 'y': ax.tick_params(axis='y', **info['tick_params'])
 
-    if 'scale' in info:
-        if axis == 'x': ax.set_xscale(info['scale'])
-        elif axis == 'y': ax.set_yscale(info['scale'])
-
-    if 'format' in info and info['format'] == 'scalar':
-        if axis == 'x': ax.xaxis.set_major_formatter(ScalarFormatter())
-        elif axis == 'y': ax.yaxis.set_major_formatter(ScalarFormatter())
-
 def graph_format(ax, info):
     '''
     Set specific design for the graph
@@ -264,6 +302,7 @@ def graph_format(ax, info):
     if 'axis' in info: # Axis format}}
         if 'x' in info['axis']: set_axis(ax, 'x', info['axis']['x'])
         if 'y' in info['axis']: set_axis(ax, 'y', info['axis']['y'])
+        if 'common' in info['axis']: set_axis(ax, 'common', info['axis']['common'])
 
     if 'title' in info: ax.set_title(info['title']) # Title format
 
@@ -388,7 +427,7 @@ def fig_scatter(ax, jgraph):
         jgraph : json with all the information for this graph
     '''
     # Get the data
-    x, y, v, c, m, _, l, _ = data_to_array(jgraph['data'])
+    x, y, v, c, m, e, l, _ = data_to_array(jgraph['data'])
     
     # X and Y must be equal
     assert len(x) == len(y), "X and Y has different size"
@@ -402,13 +441,13 @@ def fig_scatter(ax, jgraph):
     args = jgraph['args'] if 'args' in jgraph else {}
 
     # Plot the figure
-    for i, j, k, o, n, q in zip(x, y, c, m, v, l):
+    for i, j, k, o, n, q, ed in zip(x, y, c, m, v, l, e):
         # This iteration is not the more optimal thing, but is easier for 
         # programming, since I can change the color/marker of each point
         # without making exception. TLDR: not optimal bc I made everything an 
         # exception.
-        if q: ax.scatter(i, j, c=k, marker=o, label=n, **args) # With label
-        else: ax.scatter(i, j, c=k, marker=o, **args) # Without label
+        if q: ax.scatter(i, j, c=k, edgecolors=ed, marker=o, label=n, **args) # With label
+        else: ax.scatter(i, j, c=k, edgecolors=ed, marker=o, **args) # Without label
 
 def fig_bar(ax, jgraph, fig):
     '''
@@ -506,22 +545,37 @@ def fig_bar(ax, jgraph, fig):
                 ec = mc[dx]
 
         # With and without label
-        if q: ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, bottom=b, **args, label=k)
-        else: ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, bottom=b, **args)
-        # Border always black
-        ax.bar(i + loc[k], j, color='none', width=size, edgecolor='black', bottom=b, zorder=99)
+        # Bottom should go to another type of bar, stacked
+        #if q: ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, bottom=b, **args, label=k)
+        #else: ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, bottom=b, **args)
+
+        if 'bottom' in args: 
+            j -= args['bottom']
+
+        if q: ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, **args, label=k)
+        else: ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, **args)
+
+        # If stacked bar set border around it
+        #if 'EXT_BORDER' in ['args']:
+        if type(j) == list and len(j) > 1:
+            ax.bar(i + loc[k], sum(j), color='none', width=size, edgecolor='black', zorder=99)
+
 
         if 'annotate' in jgraph and k in jgraph['annotate']:
             decimals = jgraph['annotate'][k]['round']
             maxxj = math.floor(maxj*10**decimals) / (10**decimals)
+            minnj = math.floor(maxj*10**decimals) / (10**decimals)
             if maxxj > jgraph['axis']['y']['max'] or \
+                    minnj <= jgraph['axis']['y']['min'] or \
                     ('always' in jgraph['annotate'][k] and \
                      jgraph['annotate'][k]['always']):
+
                 # Annotate for this bar if the value is bigger than x
                 dic_annotate = jgraph['annotate'][k]
 
                 # Get extra info
                 r = dic_annotate['round'] if 'round' in dic_annotate else 1
+                r = dic_annotate['decimals_show'] if 'decimals_show' in dic_annotate else r
                 arg = dic_annotate['args'] if 'args' in dic_annotate else {}
 
                 # Relative position
@@ -541,7 +595,7 @@ def fig_bar(ax, jgraph, fig):
                 annotate(ax, v, x, y, xd, yd, arg, fig)
     
     
-def main(chart : str, output : str):
+def main(chart : str, output : str, inv = False):
     jgraph = read_json(chart) # Read json config file
 
     # Subplot size
@@ -559,6 +613,15 @@ def main(chart : str, output : str):
         fig, axs = set_fig(jgraph['splt_args'], rows=rows, columns=columns, size=figsize)
     else:
         fig, axs = set_fig(rows=rows, columns=columns, size=figsize)
+    # Adjust subplots
+    if 'splt_adjust' in jgraph:
+        subplot_adjust(jgraph['splt_adjust'])
+
+    #General Annotion
+    if 'annotate' in jgraph:
+        for ii in jgraph['annotate']: 
+            if 'args' in ii: fig.text(ii['x'], ii['y'], ii['txt'], **ii['args'])
+            else: fig.text(ii['x'], ii['y'], ii['txt'])
 
     # Iterate over all do graphs
     for i in jgraph['graphs']:
@@ -575,7 +638,27 @@ def main(chart : str, output : str):
 
         graph_format(ax, i)
 
+        if inv:
+            # Only show the legend
+            ax.set_xticks([])
+            ax.set_yticks([])
+            ax.set_ylabel('')
+            ax.set_xlabel('')
+            ax.grid(False)
+            ax.grid(False, which='minor')
+            ax.set_yticks([], minor=True)
+            ax.set_frame_on(False)  # Oculta el borde del gráfico
+            for line in ax.lines:
+                line.set_visible(False)
+
+            for patch in ax.patches:
+                patch.set_visible(False)
+
+            for collection in ax.collections:
+                collection.set_visible(False)
+
     graph_format(fig, jgraph)
+
 
     # Save fig as pdf
     # plt.tight_layout()
@@ -586,8 +669,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate figure from json file')
     parser.add_argument('chart', type=str, help='Json file with the chart')
     parser.add_argument('output', type=str, help='Output file')
+    parser.add_argument('-i', action='store_true', help='Only print legend')
     args = parser.parse_args()
-
-    main(args.chart, args.output)
+    if args.i:
+        main(args.chart, args.output, inv=True)
+    else:
+        main(args.chart, args.output)
 
     
