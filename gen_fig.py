@@ -237,10 +237,18 @@ def set_axis(ax, axis, info):
             kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
             ax.plot((1-d/s, 1+d/s), (-d, +d), **kwargs)
             ax.plot((1-d/s, 1+d/s), (1-d, 1+d), **kwargs)
-        if info['fancy_cut']['pos'] == 'right':
+        elif info['fancy_cut']['pos'] == 'right':
             kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
             ax.plot((-d, +d), (1-d/s, 1+d/s), **kwargs)
             ax.plot((-d, +d), (-d/s, +d/s), **kwargs)
+        elif info['fancy_cut']['pos'] == 'bottom':
+            kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
+            ax.plot((-d, +d), (-d/s, d/s), **kwargs)
+            ax.plot((1-d, 1+d), (-d/s, +d/s), **kwargs)
+        elif info['fancy_cut']['pos'] == 'top':
+            kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
+            ax.plot((-d, +d), (1-d/s, 1+d/s), **kwargs)
+            ax.plot((1-d, 1+d), (1-d/s, 1+d/s), **kwargs)
 
     if 'scale' in info:
         if axis == 'x': ax.set_xscale(info['scale'])
@@ -554,6 +562,8 @@ def fig_bar(ax, jgraph, fig):
 
         if q: ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, **args, label=k)
         else: ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, **args)
+        # Ensure that the border is always black
+        ax.bar(i + loc[k], j, color='#00000000', width=size, edgecolor='black', **args)
 
         # If stacked bar set border around it
         #if 'EXT_BORDER' in ['args']:
@@ -659,9 +669,7 @@ def main(chart : str, output : str, inv = False):
 
     graph_format(fig, jgraph)
 
-
     # Save fig as pdf
-    # plt.tight_layout()
     fig.savefig(output, bbox_inches='tight')
     
     
