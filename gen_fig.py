@@ -560,6 +560,9 @@ def fig_bar(ax, jgraph, fig):
         if 'bottom' in args: 
             j -= args['bottom']
 
+        # hatch must consist of a string of "*+-./OX\ox|" or None
+        if m[dx] == " ": m[dx] = None  
+
         if q: ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, **args, label=k)
         else: ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, **args)
         # Ensure that the border is always black
