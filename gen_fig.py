@@ -435,7 +435,7 @@ def fig_scatter(ax, jgraph):
         jgraph : json with all the information for this graph
     '''
     # Get the data
-    x, y, v, c, m, e, l, _ = data_to_array(jgraph['data'])
+    x, y, v, c, m, e, l, argsData = data_to_array(jgraph['data'])
     
     # X and Y must be equal
     assert len(x) == len(y), "X and Y has different size"
@@ -449,13 +449,21 @@ def fig_scatter(ax, jgraph):
     args = jgraph['args'] if 'args' in jgraph else {}
 
     # Plot the figure
-    for i, j, k, o, n, q, ed in zip(x, y, c, m, v, l, e):
+    for i, j, k, o, n, q, ed, arg in zip(x, y, c, m, v, l, e, argsData):
         # This iteration is not the more optimal thing, but is easier for 
         # programming, since I can change the color/marker of each point
         # without making exception. TLDR: not optimal bc I made everything an 
         # exception.
         if q: ax.scatter(i, j, c=k, edgecolors=ed, marker=o, label=n, **args) # With label
         else: ax.scatter(i, j, c=k, edgecolors=ed, marker=o, **args) # Without label
+
+        if 'txt' in arg:
+            mathtext = arg['txt']['txt']
+            posx = arg['txt']['x']
+            posy = arg['txt']['y']
+            argTxt = arg['txt']['args']
+            ax.text(i + posx, j + posy, mathtext, **argTxt)
+
 
 def fig_bar(ax, jgraph, fig):
     '''
@@ -514,7 +522,7 @@ def fig_bar(ax, jgraph, fig):
 
         return loc, size
     # Get the data
-    x, y, v, c, m, mc, l, _ = data_to_array(jgraph['data'])
+    x, y, v, c, m, mc, l, argsData = data_to_array(jgraph['data'])
 
     # If y value is this is an stacked bar
     if type(y) == list: 
@@ -531,16 +539,15 @@ def fig_bar(ax, jgraph, fig):
     args = jgraph['args'] if 'args' in jgraph else {}
 
     # Plot the figure
-    for dx, (i, j, k, n, q) in enumerate(zip(x, y, v, c, l)):
+    for dx, (i, j, k, n, q, arg) in enumerate(zip(x, y, v, c, l, argsData)):
         if k not in loc: continue # Some bars maybe are not interesting
 
         if type(j) == list: 
             bar = [0] + j[:-1]
-            b = [sum(bar[:ii+1]) for ii in range(0, len(bar))]
+            [sum(bar[:ii+1]) for ii in range(0, len(bar))]
             maxj = max(j)
         else: 
             maxj = j
-            b = 0
 
         ec = [] 
         if len(mc) == 0:
@@ -552,21 +559,33 @@ def fig_bar(ax, jgraph, fig):
             else: 
                 ec = mc[dx]
 
-        # With and without label
-        # Bottom should go to another type of bar, stacked
-        #if q: ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, bottom=b, **args, label=k)
-        #else: ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, bottom=b, **args)
-
+        # Start from another point
         if 'bottom' in args: 
             j -= args['bottom']
+
+        # It shoulde be above other stuff
+        b = None
+        if 'bottom' in arg:
+            b = arg['bottom']
 
         # hatch must consist of a string of "*+-./OX\ox|" or None
         if m[dx] == " ": m[dx] = None  
 
-        if q: ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, **args, label=k)
-        else: ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, **args)
-        # Ensure that the border is always black
-        ax.bar(i + loc[k], j, color='#00000000', width=size, edgecolor='black', **args)
+        if q: 
+            if b:
+                ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, bottom=b, **args, label=k)
+            else:
+                ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, **args, label=k)
+        else: 
+            if b:
+                ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, bottom=b, **args)
+            else:
+                ax.bar(i + loc[k], j, color=n, width=size, hatch=m[dx], edgecolor=ec, **args)
+
+        if 'edgeAlwaysBlack' in arg and not arg['edgeAlwaysBlack']: pass
+        else:
+            # Ensure that the border is always black
+            ax.bar(i + loc[k], j, color='#00000000', width=size, edgecolor='black', **args)
 
         # If stacked bar set border around it
         #if 'EXT_BORDER' in ['args']:
@@ -617,6 +636,7 @@ def main(chart : str, output : str, inv = False):
     figsize = None if 'figsize' not in jgraph else \
             (int(jgraph['figsize'].split(',')[0]), \
             int(jgraph['figsize'].split(',')[1]))
+    assert(figsize != None)
 
     # Arguments of the plot
     if 'args' in jgraph: 
